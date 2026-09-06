@@ -43,6 +43,7 @@ public class ShopkeeperStaffService {
                 .phone(request.getPhone())
                 .role(Role.ROLE_COUNTER_STAFF)
                 .shop(shop)
+                .active(true)
                 .createdAt(LocalDateTime.now())
                 .build();
 

@@ -74,6 +74,7 @@ public class AdminService {
                 .phone(request.getPhone())
                 .role(Role.ROLE_SHOPKEEPER)
                 .shop(shop)
+                .active(true)
                 .createdAt(LocalDateTime.now())
                 .build();
 

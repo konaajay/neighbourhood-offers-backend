@@ -36,6 +36,10 @@ public class User {
     @JoinColumn(name = "shop_id")
     private Shop shop;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean active = true;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -44,5 +48,12 @@ public class User {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
+        if (active == null) {
+            active = true;
+        }
+    }
+
+    public boolean isActive() {
+        return active != null && active;
     }
 }

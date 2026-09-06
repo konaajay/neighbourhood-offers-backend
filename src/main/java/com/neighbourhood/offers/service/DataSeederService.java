@@ -9,6 +9,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,6 +21,7 @@ import java.util.List;
 @Slf4j
 public class DataSeederService implements CommandLineRunner {
 
+    private final DataSource dataSource;
     private final ShopRepository shopRepository;
     private final UserRepository userRepository;
     private final OfferRepository offerRepository;
@@ -31,6 +34,16 @@ public class DataSeederService implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
+        try (Connection conn = dataSource.getConnection()) {
+            log.info("=== MYSQL / DATABASE CONNECTION VERIFICATION ===");
+            log.info("Database URL: {}", conn.getMetaData().getURL());
+            log.info("Active Database/Catalog: {}", conn.getCatalog());
+            log.info("Database Product: {} (Version: {})", conn.getMetaData().getDatabaseProductName(), conn.getMetaData().getDatabaseProductVersion());
+            log.info("=================================================");
+        } catch (Exception e) {
+            log.warn("Could not inspect database connection metadata: {}", e.getMessage());
+        }
+
         if (userRepository.count() > 0) {
             log.info("Database already contains data, checking products seeder...");
             seedProductsIfEmpty();
@@ -88,6 +101,7 @@ public class DataSeederService implements CommandLineRunner {
                 .phone("+91 98450 11223")
                 .role(Role.ROLE_SHOPKEEPER)
                 .shop(anithaShop)
+                .active(true)
                 .build();
 
         User rahul = User.builder()
@@ -97,6 +111,7 @@ public class DataSeederService implements CommandLineRunner {
                 .phone("+91 98451 22334")
                 .role(Role.ROLE_SHOPKEEPER)
                 .shop(rahulShop)
+                .active(true)
                 .build();
 
         User meena = User.builder()
@@ -106,6 +121,7 @@ public class DataSeederService implements CommandLineRunner {
                 .phone("+91 98452 33445")
                 .role(Role.ROLE_SHOPKEEPER)
                 .shop(meenaShop)
+                .active(true)
                 .build();
 
         User sharma = User.builder()
@@ -115,6 +131,7 @@ public class DataSeederService implements CommandLineRunner {
                 .phone("+91 98453 44556")
                 .role(Role.ROLE_SHOPKEEPER)
                 .shop(sharmaShop)
+                .active(true)
                 .build();
 
         User deepaStaff = User.builder()
@@ -124,6 +141,7 @@ public class DataSeederService implements CommandLineRunner {
                 .phone("+91 98454 55667")
                 .role(Role.ROLE_COUNTER_STAFF)
                 .shop(anithaShop)
+                .active(true)
                 .build();
 
         User amitStaff = User.builder()
@@ -133,6 +151,7 @@ public class DataSeederService implements CommandLineRunner {
                 .phone("+91 98455 66778")
                 .role(Role.ROLE_COUNTER_STAFF)
                 .shop(rahulShop)
+                .active(true)
                 .build();
 
         User priyaShopper = User.builder()
@@ -142,6 +161,7 @@ public class DataSeederService implements CommandLineRunner {
                 .phone("+91 98456 77889")
                 .role(Role.ROLE_SHOPPER)
                 .shop(null)
+                .active(true)
                 .build();
 
         User vikramShopper = User.builder()
@@ -151,6 +171,7 @@ public class DataSeederService implements CommandLineRunner {
                 .phone("+91 98457 88990")
                 .role(Role.ROLE_SHOPPER)
                 .shop(null)
+                .active(true)
                 .build();
 
         User superAdmin = User.builder()
@@ -160,6 +181,7 @@ public class DataSeederService implements CommandLineRunner {
                 .phone("+91 99999 00000")
                 .role(Role.ROLE_SUPER_ADMIN)
                 .shop(null)
+                .active(true)
                 .build();
 
         userRepository.saveAll(List.of(anitha, rahul, meena, sharma, deepaStaff, amitStaff, priyaShopper, vikramShopper, superAdmin));
@@ -427,6 +449,7 @@ public class DataSeederService implements CommandLineRunner {
                     .phone("+91 99999 00000")
                     .role(Role.ROLE_SUPER_ADMIN)
                     .shop(null)
+                    .active(true)
                     .build());
             log.info("Ensured super admin user exists.");
         }
