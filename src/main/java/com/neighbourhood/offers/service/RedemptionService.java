@@ -108,12 +108,9 @@ public class RedemptionService {
         // If already redeemed (e.g. rapid multi-taps by counter staff over lagging network),
         // gracefully return the existing receipt without double-deducting points!
         if (claim.getStatus() == ClaimStatus.REDEEMED) {
-            if (request.getIdempotencyKey() != null && request.getIdempotencyKey().equals(claim.getIdempotencyKey())) {
-                log.info("Idempotent replay detected for claimCode={} by staff={}", cleanCode, staff.getUsername());
-                Shop shop = shopRepository.findById(claim.getShop().getId()).orElse(claim.getShop());
-                return RedemptionReceiptDto.fromClaim(claim, true, 0, shop.getPointsBalance());
-            }
-            throw new ClaimAlreadyRedeemedException("Voucher already redeemed: This voucher has already been used and cannot be redeemed again.");
+            log.info("Idempotent replay detected for claimCode={} by staff={}", cleanCode, staff.getUsername());
+            Shop shop = shopRepository.findById(claim.getShop().getId()).orElse(claim.getShop());
+            return RedemptionReceiptDto.fromClaim(claim, true, 0, shop.getPointsBalance());
         }
 
         // 4. Validate voucher expiration

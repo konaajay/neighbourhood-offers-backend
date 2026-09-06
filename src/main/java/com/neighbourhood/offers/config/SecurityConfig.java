@@ -50,6 +50,7 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/shopper/offers/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/uploads/**").permitAll()
@@ -66,11 +67,52 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*"));
+
+        // 1. Explicit production frontend and local development origins (NO "*" when credentials are true)
+        configuration.setAllowedOrigins(Arrays.asList(
+                "https://neighbourhood-offers-frontend.netlify.app",
+                "http://localhost:5173",
+                "http://localhost:3000",
+                "http://localhost:8088",
+                "http://127.0.0.1:5173",
+                "http://127.0.0.1:3000",
+                "http://127.0.0.1:8088"
+        ));
+
+        // 2. Netlify & Render preview domains without broad wildcard
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+                "https://*.netlify.app",
+                "https://*.onrender.com",
+                "http://localhost:[*]",
+                "http://127.0.0.1:[*]"
+        ));
+
+        // 3. HTTP Methods
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", "X-Idempotency-Key"));
-        configuration.setExposedHeaders(List.of("Authorization", "X-Idempotency-Key"));
+
+        // 4. Headers
+        configuration.setAllowedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "Accept",
+                "Origin",
+                "X-Requested-With",
+                "Access-Control-Request-Method",
+                "Access-Control-Request-Headers",
+                "X-Idempotency-Key"
+        ));
+
+        // 5. Exposed Headers
+        configuration.setExposedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "Accept",
+                "X-Idempotency-Key"
+        ));
+
+        // 6. Credentials & Preflight cache duration
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
