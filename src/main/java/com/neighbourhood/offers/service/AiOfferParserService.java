@@ -38,7 +38,7 @@ public class AiOfferParserService {
     @Value("${app.ai.gemini.api-key:}")
     private String geminiApiKey;
 
-    @Value("${app.ai.gemini.model:gemini-2.5-flash}")
+    @Value("${app.ai.gemini.model:gemini-1.5-flash}")
     private String geminiModel;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
